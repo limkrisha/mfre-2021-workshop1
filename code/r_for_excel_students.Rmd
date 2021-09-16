@@ -1,0 +1,200 @@
+---
+title: "R for Excel Workshop"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Packages and Data
+
+```{r loadpackages, message = F}
+pacman::p_load(readxl, here, dplyr, lubridate, gtsummary, kableExtra, janitor, skimr, tidyr)
+
+transaction <- read_excel(here("data", "Crepe & Mocca Database workshop PRE.xlsx"), 
+                   sheet = 1, skip = 1)
+ref_table <- read_excel(here("data", "Crepe & Mocca Database workshop PRE.xlsx"), 
+                        sheet = 2, skip = 2)
+```
+# Inspecting the Data
+
+```{r inspect_data}
+# look at data
+head(transaction)
+head(ref_table)
+```
+
+# Reload Reference Sheet
+
+```{r reload_tables}
+prod_codes <- read_excel(here("data", "Crepe & Mocca Database workshop PRE.xlsx"), 
+                         range = "Reference!A3:E10")
+
+serv_codes <- read_excel(here("data", "Crepe & Mocca Database workshop PRE.xlsx"),
+                         range = "Reference!G3:H5")
+
+pay_codes <- read_excel(here("data", "Crepe & Mocca Database workshop PRE.xlsx"), 
+                         range = "Reference!J3:k8")
+```
+
+# Renaming Variables
+
+```{r rename_vars}
+names(transaction)
+names(ref_table)
+
+# method 1
+# names(prod_codes)[4] <- "old_price"
+# names(prod_codes)[5] <- "new_price"
+# 
+# # method 2
+# prod_codes <- prod_codes %>%
+#   rename(old_price = "Price per ea\r\neff. Apr 9, 2015") %>%
+#   rename(new_price = "Price per ea\r\neff. Oct 10, 2017")
+
+transaction <- clean_names(transaction)
+prod_codes <- clean_names(prod_codes)
+pay_codes <- clean_names(pay_codes)
+serv_codes <- clean_names(serv_codes)
+
+names(transaction)
+names(ref_table)
+```
+
+# Understanding your data
+
+```{r}
+dim(transaction)
+glimpse(transaction)
+
+# skimr::skim(transaction)
+```
+
+# "Filter" the variables
+
+```{r}
+table(year(transaction$date))
+table(month(transaction$date))
+
+table(transaction$service_id)
+```
+
+# Data Checks - Duplicates
+
+```{r}
+duplicates <- transaction %>% 
+  get_dupes(invoice_id)
+
+head(duplicates)
+
+table(year(duplicates$date))
+table(month(duplicates$date))
+```
+
+# Data Checks - GST
+
+```{r}
+summary(transaction$subtotal + transaction$gst == transaction$total)
+table(transaction$date[transaction$subtotal + transaction$gst != transaction$total])
+table(transaction$payment_type[transaction$subtotal + transaction$gst != transaction$total])
+table(transaction$service_id[transaction$subtotal + transaction$gst != transaction$total])
+table(transaction$product_id[transaction$subtotal + transaction$gst != transaction$total])
+```
+
+## Creating `gst_corrected` and `total_corrected`
+
+```{r}
+transaction <- transaction %>%
+  mutate(gst_corrected = subtotal * 0.05,
+         total_corrected = subtotal + gst_corrected) 
+
+summary(transaction$subtotal + transaction$gst_corrected == transaction$total_corrected)
+```
+
+# Data Checks - New Prices
+
+```{r datacheck2}
+transaction <- transaction %>%
+  mutate(unit_price = subtotal / units) %>%
+  mutate(effective_date = case_when(date > "2017-10-10" ~ 1, 
+                                    TRUE ~ 0))
+
+max(transaction$date[transaction$effective_date == 0])
+min(transaction$date[transaction$effective_date == 1])
+```
+
+```{r datacheck3, message = FALSE}
+price_check <- transaction %>%
+  group_by(product_id, effective_date) %>%
+  summarize(unit_price = round(mean(unit_price),2))  %>%
+  pivot_wider(names_from = effective_date,
+              values_from = unit_price) %>%
+  rename("after_oct_10" = `1`,
+         "before_oct_10" = `0`) %>%
+  full_join(prod_codes %>% select(-category), by = c("product_id"))
+```
+
+```{r datacheck4}
+kable(price_check, align = "c",
+    col.names = c("Product ID", 
+                  "Description", 
+                  "Data - before Oct 10", 
+                  "Data - after Oct 10", 
+                  "Ref - before Oct 10", 
+                  "Ref - after Oct 10")) %>% 
+  kable_styling(bootstrap_options = c("striped")) %>%
+  column_spec(5:6, background = "darkgray")
+```
+
+# Joins
+
+```{r joins}
+pay_codes <- pay_codes %>%
+  rename(payment_type = cr_visa)
+
+transaction <- transaction %>%
+  full_join(prod_codes %>% select(product_id, description, category),  #<< 
+            by = c("product_id")) %>% #<< 
+  rename(prod_description = description) %>%
+  full_join(serv_codes, by = c("service_id")) %>%
+  rename(serv_description = description) %>%
+  full_join(pay_codes, by = c("payment_type"))
+```
+
+# Pivot Tables with {dplyr}
+
+```{r pivot}
+pivot1 <- transaction %>%
+  mutate(month = month(date, label = T),
+         year = year(date)) %>%
+  filter(year == 2019) %>%  # can change this to any year
+  group_by(category, month) %>%
+  summarize(total_units = sum(units) ,
+            total_subtotal = sum(subtotal))
+
+kable(pivot1[, 2:4], 
+      col.names = c("Month", "Total Units Sold", "Sum of Subtotal"),
+      caption = "Total Units and Subtotal by Month and Category",
+      align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+  pack_rows(group_label = "Drink", 1, 12) %>%
+  pack_rows(group_label = "Food", 13, 24)
+
+```
+
+# Activity 1
+
+```{r, message = F}
+
+```
+
+# Activity 2
+
+```{r, message = F}
+
+```
+
