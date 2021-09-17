@@ -844,5 +844,5 @@ name: takeaways
 ```{r convert, include = F}
 #library(xaringanBuilder)
 
-#build_pdf("C:/Users/krishlim/OneDrive - The University Of British Columbia/Desktop/mfre/workshops/presentation/grant.html")
+#build_pdf("C:/Users/krishlim/OneDrive - The University Of British Columbia/Desktop/mfre/workshop1/presentation/r-excel-with-answers.html")
 ```
