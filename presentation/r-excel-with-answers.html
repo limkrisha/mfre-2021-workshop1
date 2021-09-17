@@ -608,7 +608,8 @@ price_check &lt;- transaction %&gt;%
               values_from = unit_price) %&gt;%
   rename("after_oct_10" = `1`,
          "before_oct_10" = `0`) %&gt;%
-  full_join(prod_codes %&gt;% select(-category), by = c("product_id"))
+  full_join(prod_codes %&gt;% select(-category), by = c("product_id")) %&gt;%
+  select(product_id, description, before_oct_10, price_per_ea_eff_apr_9_2015, after_oct_10, price_per_ea_eff_oct_10_2017)
 ```
 
 ---
@@ -622,12 +623,13 @@ price_check &lt;- transaction %&gt;%
 kable(price_check, align = "c",
     col.names = c("Product ID", 
                   "Description", 
-                  "Data - before Oct 10", 
-                  "Data - after Oct 10", 
+                  "Price - before Oct 10", 
                   "Ref - before Oct 10", 
+                  "Price - after Oct 10", 
                   "Ref - after Oct 10")) %&gt;% 
   kable_styling(bootstrap_options = c("striped")) %&gt;%
-  column_spec(5:6, background = "darkgray")
+  column_spec(4, background = "darkgray") %&gt;%
+  column_spec(6, background = "darkgray")
 ```
 
 ---
@@ -641,67 +643,67 @@ kable(price_check, align = "c",
   &lt;tr&gt;
    &lt;th style="text-align:center;"&gt; Product ID &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; Description &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Data - before Oct 10 &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Data - after Oct 10 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Price - before Oct 10 &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; Ref - before Oct 10 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Price - after Oct 10 &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; Ref - after Oct 10 &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 12255 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.45 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.95 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Crepe - Sweet &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.45 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 7.45 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.95 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 7.95 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 12256 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 9.75 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 9.95 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Crepe - Savoury &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.75 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 9.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.95 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 9.95 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 13114 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.75 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.00 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Croissant Choc &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.75 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 4.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.00 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 5.00 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 13115 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.45 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.75 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Croissant Almond &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.45 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 5.45 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.75 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 5.75 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 20100 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.50 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.75 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Tea &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.50 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 2.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.75 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 2.75 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 20110 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.75 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.00 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Coffee &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.75 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 2.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.00 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 3.00 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 20331 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.25 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.50 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; Hot Chocolate &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.25 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 3.25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.50 &lt;/td&gt;
    &lt;td style="text-align:center;background-color: darkgray !important;"&gt; 3.50 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;

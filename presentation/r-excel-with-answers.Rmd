@@ -399,7 +399,8 @@ price_check <- transaction %>%
               values_from = unit_price) %>%
   rename("after_oct_10" = `1`,
          "before_oct_10" = `0`) %>%
-  full_join(prod_codes %>% select(-category), by = c("product_id"))
+  full_join(prod_codes %>% select(-category), by = c("product_id")) %>%
+  select(product_id, description, before_oct_10, price_per_ea_eff_apr_9_2015, after_oct_10, price_per_ea_eff_oct_10_2017)
 ```
 
 ---
@@ -412,12 +413,13 @@ price_check <- transaction %>%
 kable(price_check, align = "c",
     col.names = c("Product ID", 
                   "Description", 
-                  "Data - before Oct 10", 
-                  "Data - after Oct 10", 
+                  "Price - before Oct 10", 
                   "Ref - before Oct 10", 
+                  "Price - after Oct 10", 
                   "Ref - after Oct 10")) %>% 
   kable_styling(bootstrap_options = c("striped")) %>%
-  column_spec(5:6, background = "darkgray")
+  column_spec(4, background = "darkgray") %>%
+  column_spec(6, background = "darkgray")
 ```
 
 ---
@@ -428,9 +430,10 @@ kable(price_check, align = "c",
 
 ```{r kable, echo = F}
 kbl(price_check, align = "c",
-    col.names = c("Product ID", "Description", "Data - before Oct 10", "Data - after Oct 10", "Ref - before Oct 10", "Ref - after Oct 10")) %>% 
+    col.names = c("Product ID", "Description", "Price - before Oct 10", "Ref - before Oct 10", "Price - after Oct 10", "Ref - after Oct 10")) %>% 
   kable_styling(bootstrap_options = c("striped")) %>%
-  column_spec(5:6, background = "darkgray")
+  column_spec(4, background = "darkgray") %>%
+  column_spec(6, background = "darkgray")
 ```
 
 ---
